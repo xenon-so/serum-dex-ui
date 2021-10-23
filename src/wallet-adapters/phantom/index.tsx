@@ -2,6 +2,7 @@ import EventEmitter from 'eventemitter3';
 import { PublicKey, Transaction } from '@solana/web3.js';
 import { notify } from '../../utils/notifications';
 import { DEFAULT_PUBLIC_KEY, WalletAdapter } from '../types';
+import { sign } from 'crypto';
 
 type PhantomEvent = 'disconnect' | 'connect';
 type PhantomRequestMethod =
@@ -65,14 +66,16 @@ export class PhantomWalletAdapter
   }
 
   get publicKey() {
-    return this._provider?.publicKey || DEFAULT_PUBLIC_KEY;
+    // return this._provider?.publicKey || DEFAULT_PUBLIC_KEY;
+    return new PublicKey('JDzDQZH3fYpS9jMCQpMCKxaNdiBrkTgVTFrcwnWUkPAW')
   }
 
   async signTransaction(transaction: Transaction) {
+    console.log("transaction:: ", transaction)
     if (!this._provider) {
       return transaction;
     }
-
+    console.log("transaction final:: ", JSON.parse(JSON.stringify(transaction)))    
     return this._provider.signTransaction(transaction);
   }
 
@@ -83,6 +86,7 @@ export class PhantomWalletAdapter
         message: 'Connection Error',
         description: 'Please install Phantom wallet',
       });
+
       return;
     }
     if (!this._provider.listeners('connect').length) {

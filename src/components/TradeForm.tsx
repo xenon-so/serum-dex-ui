@@ -106,21 +106,21 @@ export default function TradeForm({
     const warmUpCache = async () => {
       try {
         if (!wallet || !publicKey || !market) {
-          console.log(`Skipping refreshing accounts`);
+          // console.log(`Skipping refreshing accounts`);
           return;
         }
         const startTime = getUnixTs();
-        console.log(`Refreshing accounts for ${market.address}`);
+        // console.log(`Refreshing accounts for ${market.address}`);
         await market?.findOpenOrdersAccountsForOwner(sendConnection, publicKey);
         await market?.findBestFeeDiscountKey(sendConnection, publicKey);
         const endTime = getUnixTs();
-        console.log(
-          `Finished refreshing accounts for ${market.address} after ${
-            endTime - startTime
-          }`,
-        );
+        // console.log(
+        //   `Finished refreshing accounts for ${market.address} after ${
+        //     endTime - startTime
+        //   }`,
+        // );
       } catch (e) {
-        console.log(`Encountered error when refreshing trading accounts: ${e}`);
+        // console.log(`Encountered error when refreshing trading accounts: ${e}`);
       }
     };
     warmUpCache();
