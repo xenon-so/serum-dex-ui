@@ -718,18 +718,41 @@ export async function signTransaction({
   console.log("transaction before:: ", JSON.parse(JSON.stringify(transaction)))
 
   transaction.instructions.forEach(ix => {
-    const puppetProg = ix.programId
-    ix.keys.unshift({pubkey: ix.programId, isSigner: false, isWritable: false})
-    ix.keys.unshift({pubkey: signerKey, isSigner: true, isWritable: true})
-    ix.programId = new PublicKey('Ekgdgdz6xWEWBEqeUdURv8FV75vQJcYyFeXrWNCP2PT9')
-    console.log("keys::", ix.keys)
-    const signerIndex = ix.keys.findIndex((x => (x.pubkey.toBase58() === wallet.publicKey.toBase58())))
-    console.log("signerIndex:: ", signerIndex)
-    if (signerIndex != -1) {
-      ix.keys[signerIndex].isSigner = false
-      ix.keys[signerIndex].isWritable = true
+    if (ix.programId.toBase58() != SystemProgram.programId.toBase58())
+    {
+      const puppetProg = ix.programId
+      ix.keys.unshift({pubkey: ix.programId, isSigner: false, isWritable: false})
+      ix.keys.unshift({pubkey: signerKey, isSigner: true, isWritable: true})
+      ix.programId = new PublicKey('CLbDtJTcL7NMtsujFRuHx5kLxjDgjmEuM2jZqswk7bbN')
+      console.log("keys::", ix.keys)
+      const signerIndex = ix.keys.findIndex((x => (x.pubkey.toBase58() === wallet.publicKey.toBase58())))
+      console.log("signerIndex:: ", signerIndex)
+      if (signerIndex != -1) {
+        ix.keys[signerIndex].isSigner = false
+        ix.keys[signerIndex].isWritable = true
+      }
+      // update instruction data, append 10 as opcode
+      let new_data = new Uint8Array(ix.data.length+1)
+      new_data[0] = 10 // ix opcode
+      for (let i=0; i<ix.data.length; i++) {
+        new_data[i+1] = ix.data[i]
+      }
+      ix.data = Buffer.from(new_data.buffer)
     }
-  });
+    else {
+      const signerIndex = ix.keys.findIndex((x => (x.pubkey.toBase58() === wallet.publicKey.toBase58())))
+      console.log("signerIndex:: ", signerIndex)
+      if (signerIndex != -1) {
+        ix.keys[signerIndex].pubkey = signerKey
+        ix.keys[signerIndex].isSigner = false
+        ix.keys[signerIndex].isWritable = true
+      }
+    }
+  
+    });
+    
+
+  console.log("transaction after prepend data:: ", JSON.parse(JSON.stringify(transaction)))
   // let signers = transaction.signatures.map((s) => s.publicKey)
   // console.log("signers list before:: ", signers)
  
@@ -738,6 +761,7 @@ export async function signTransaction({
 
   if (signers.length > 0) {
     transaction.setSigners(
+      
       // fee payed by the wallet owner
       signerKey,
       ...signers.map((s) => s.publicKey),

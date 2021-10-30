@@ -67,7 +67,8 @@ export class PhantomWalletAdapter
 
   get publicKey() {
     // return this._provider?.publicKey || DEFAULT_PUBLIC_KEY;
-    return new PublicKey('JDzDQZH3fYpS9jMCQpMCKxaNdiBrkTgVTFrcwnWUkPAW')
+    // const marginPDA = await PublicKey.findProgramAddress([key.toBuffer()], programId);
+    return new PublicKey('HcXBTWjWpuoFhjCvznSEShyrNi9sMgpPHg3aAoXNGfCc')
   }
 
   async signTransaction(transaction: Transaction) {
