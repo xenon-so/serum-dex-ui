@@ -3,6 +3,7 @@ import { PublicKey, Transaction } from '@solana/web3.js';
 import { notify } from '../../utils/notifications';
 import { DEFAULT_PUBLIC_KEY, WalletAdapter } from '../types';
 import { sign } from 'crypto';
+export const programId = new PublicKey('CLbDtJTcL7NMtsujFRuHx5kLxjDgjmEuM2jZqswk7bbN');
 
 type PhantomEvent = 'disconnect' | 'connect';
 type PhantomRequestMethod =
@@ -13,6 +14,7 @@ type PhantomRequestMethod =
 
 interface PhantomProvider {
   publicKey?: PublicKey;
+  walletPublicKey?: PublicKey;
   isConnected?: boolean;
   autoApprove?: boolean;
   signTransaction: (transaction: Transaction) => Promise<Transaction>;
@@ -32,6 +34,8 @@ export class PhantomWalletAdapter
     this.connect = this.connect.bind(this);
   }
 
+  xenonPda: PublicKey = PublicKey.default;
+
   private get _provider(): PhantomProvider | undefined {
     if ((window as any)?.solana?.isPhantom) {
       return (window as any).solana;
@@ -40,7 +44,14 @@ export class PhantomWalletAdapter
   }
 
   private _handleConnect = (...args) => {
+
     this.emit('connect', ...args);
+
+    console.log('this._provider?.publicKey :>> ', this._provider?.publicKey);
+
+    if(this._provider && this._provider?.publicKey) {
+      PublicKey.findProgramAddress([this._provider?.publicKey.toBuffer()], programId).then(x =>  this.xenonPda = x[0]);
+    }
   }
 
   private _handleDisconnect = (...args) => {
@@ -68,7 +79,15 @@ export class PhantomWalletAdapter
   get publicKey() {
     // return this._provider?.publicKey || DEFAULT_PUBLIC_KEY;
     // const marginPDA = await PublicKey.findProgramAddress([key.toBuffer()], programId);
-    return new PublicKey('HcXBTWjWpuoFhjCvznSEShyrNi9sMgpPHg3aAoXNGfCc')
+    // console.log('this.xenonPda :>> ', this.xenonPda);
+    return this.xenonPda
+  }
+  
+  get walletPublicKey() {
+    // return this._provider?.publicKey || DEFAULT_PUBLIC_KEY;
+    // const marginPDA = await PublicKey.findProgramAddress([key.toBuffer()], programId);
+    // console.log('this.xenonPda :>> ', this.xenonPda);
+    return this._provider?.publicKey
   }
 
   async signTransaction(transaction: Transaction) {

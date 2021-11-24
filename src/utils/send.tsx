@@ -703,8 +703,9 @@ export async function signTransaction({
     await connection.getRecentBlockhash('max')
   ).blockhash;
 
-  
-  let signerKey = new PublicKey('AM5fwZR9BUW8AFkhdGWXW4PHd2cy8ora63kDf2z2eknw')
+  console.log('wallet.pubkey :>> ', wallet.publicKey);
+  console.log('wallet.pubkey :>> ', wallet.walletPublicKey);
+  let signerKey = wallet.walletPublicKey
 
   console.log("transaction before  :: ", JSON.parse(JSON.stringify(transaction)) )
   console.log("signers:: ", signers)
@@ -722,7 +723,7 @@ export async function signTransaction({
     {
       const puppetProg = ix.programId
       ix.keys.unshift({pubkey: ix.programId, isSigner: false, isWritable: false})
-      ix.keys.unshift({pubkey: signerKey, isSigner: true, isWritable: true})
+      ix.keys.unshift({pubkey: signerKey!, isSigner: true, isWritable: true})
       ix.programId = new PublicKey('CLbDtJTcL7NMtsujFRuHx5kLxjDgjmEuM2jZqswk7bbN')
       console.log("keys::", ix.keys)
       const signerIndex = ix.keys.findIndex((x => (x.pubkey.toBase58() === wallet.publicKey.toBase58())))
@@ -743,7 +744,7 @@ export async function signTransaction({
       const signerIndex = ix.keys.findIndex((x => (x.pubkey.toBase58() === wallet.publicKey.toBase58())))
       console.log("signerIndex:: ", signerIndex)
       if (signerIndex != -1) {
-        ix.keys[signerIndex].pubkey = signerKey
+        ix.keys[signerIndex].pubkey = signerKey!
         ix.keys[signerIndex].isSigner = false
         ix.keys[signerIndex].isWritable = true
       }
@@ -763,7 +764,7 @@ export async function signTransaction({
     transaction.setSigners(
       
       // fee payed by the wallet owner
-      signerKey,
+      signerKey!,
       ...signers.map((s) => s.publicKey),
     );
     transaction.partialSign(...signers);
@@ -771,7 +772,7 @@ export async function signTransaction({
   else {
     transaction.setSigners(
       // fee payed by the wallet owner
-      signerKey,
+      signerKey!,
     );
   }
   console.log("signer pubkeys from tx:: ", transaction.signatures[0].publicKey, transaction.signatures[0].signature)

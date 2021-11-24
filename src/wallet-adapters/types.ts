@@ -13,4 +13,5 @@ export interface WalletAdapter {
   connect: () => any;
   disconnect: () => any;
   on<T>(event: string, fn: () => void): this;
+  walletPublicKey?: PublicKey;
 }
