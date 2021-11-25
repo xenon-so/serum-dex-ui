@@ -158,9 +158,12 @@ const _SLOW_REFRESH_INTERVAL = 5 * 1000;
 // For things that change frequently
 const _FAST_REFRESH_INTERVAL = 1000;
 
-export const DEFAULT_MARKET = USE_MARKETS.find(
-  ({ name, deprecated }) => name === 'SRM/USDT' && !deprecated,
-);
+export const DEFAULT_MARKET = {
+  "address": new PublicKey("8H7c3jxFG8gi2YBhSqBxxE8ySYHkXW1M5jUokJYQWqhj"),
+  "deprecated": false,
+  "name": "BTC/USDC",
+  "programId": new PublicKey("DESVgJVGajEgKGXhb6XmqDHGz3VjdgP7rEVESBgxmroY")
+}
 
 export function getMarketDetails(
   market: Market | undefined | null,
