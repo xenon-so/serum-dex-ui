@@ -12,7 +12,7 @@ export const ENDPOINTS: EndpointInfo[] = [
     custom: false,
   },
   { name: 'localnet', endpoint: 'http://127.0.0.1:8899', custom: false },
-  { name: 'devnet', endpoint: 'http://api.devnet.solana.com', custom: false },
+  { name: 'devnet', endpoint: 'https://api.devnet.solana.com', custom: false },
 ];
 
 const accountListenerCount = new Map();
