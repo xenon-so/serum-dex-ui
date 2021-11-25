@@ -2,7 +2,7 @@ import { PublicKey } from '@solana/web3.js';
 
 export const xenonMarkets = [
   {
-    address: new PublicKey('8H7c3jxFG8gi2YBhSqBxxE8ySYHkXW1M5jUokJYQWqhj'),
+    address: new PublicKey('DW83EpHFywBxCHmyARxwj3nzxJd7MUdSeznmrdzZKNZB'),
     deprecated: false,
     name: 'BTC/USDC',
     programId: new PublicKey('DESVgJVGajEgKGXhb6XmqDHGz3VjdgP7rEVESBgxmroY'),
