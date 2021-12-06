@@ -719,7 +719,7 @@ export async function signTransaction({
   console.log("transaction before:: ", JSON.parse(JSON.stringify(transaction)))
 
   transaction.instructions.forEach(ix => {
-    if (ix.programId.toBase58() != SystemProgram.programId.toBase58())
+    if ((ix.programId.toBase58() != SystemProgram.programId.toBase58()) && (ix.programId.toBase58() != ASSOCIATED_TOKEN_PROGRAM_ID.toBase58()))
     {
       const puppetProg = ix.programId
       ix.keys.unshift({pubkey: ix.programId, isSigner: false, isWritable: false})
@@ -742,6 +742,7 @@ export async function signTransaction({
     }
     else {
       const signerIndex = ix.keys.findIndex((x => (x.pubkey.toBase58() === wallet.publicKey.toBase58())))
+      console.log("ix:: ", ix)
       console.log("signerIndex:: ", signerIndex)
       if (signerIndex != -1) {
         ix.keys[signerIndex].pubkey = signerKey!
