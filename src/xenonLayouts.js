@@ -1,102 +1,102 @@
-// import { Blob, seq, struct, u8 } from 'buffer-layout';
-// import { PublicKey } from '@solana/web3.js';
-// import BN from 'bn.js';
+import { Blob, seq, struct, u8 } from 'buffer-layout';
+import { PublicKey } from '@solana/web3.js';
+import BN from 'bn.js';
 
-// class PublicKeyLayout extends Blob {
-//   constructor(property) {
-//     super(32, property);
-//   }
+class PublicKeyLayout extends Blob {
+  constructor(property) {
+    super(32, property);
+  }
 
-//   decode(b, offset) {
-//     return new PublicKey(super.decode(b, offset));
-//   }
+  decode(b, offset) {
+    return new PublicKey(super.decode(b, offset));
+  }
 
-//   encode(src, b, offset) {
-//     return super.encode(src.toBuffer(), b, offset);
-//   }
-// }
+  encode(src, b, offset) {
+    return super.encode(src.toBuffer(), b, offset);
+  }
+}
 
-// export function publicKeyLayout(property = "") {
-//   return new PublicKeyLayout(property);
-// }
+export function publicKeyLayout(property = '') {
+  return new PublicKeyLayout(property);
+}
 
-// class BNLayout extends Blob {
-//   constructor(number, property) {
-//     super(number, property);
-//     // restore prototype chain
-//     Object.setPrototypeOf(this, new.target.prototype)
-//   }
+class BNLayout extends Blob {
+  constructor(number, property) {
+    super(number, property);
+    // restore prototype chain
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
 
-//   decode(b, offset) {
-//     return new BN(super.decode(b, offset), 10, 'le');
-//   }
+  decode(b, offset) {
+    return new BN(super.decode(b, offset), 10, 'le');
+  }
 
-//   encode(src, b, offset) {
-//     return super.encode(src.toArrayLike(Buffer, 'le', this['span']), b, offset);
-//   }
-// }
+  encode(src, b, offset) {
+    return super.encode(src.toArrayLike(Buffer, 'le', this['span']), b, offset);
+  }
+}
 
-// class U64F64Layout extends Blob {
-//   constructor(property) {
-//     super(16, property);
-//   }
+class U64F64Layout extends Blob {
+  constructor(property) {
+    super(16, property);
+  }
 
-//   decode(b, offset) {
-//     const raw = new BN(super.decode(b, offset), 10, 'le');
+  decode(b, offset) {
+    const raw = new BN(super.decode(b, offset), 10, 'le');
 
-//     return raw / Math.pow(2, 64);
-//   }
+    return raw / Math.pow(2, 64);
+  }
 
-//   encode(src, b, offset) {
-//     console.log("src ::: ", src)
-//     return super.encode(src.toArrayLike(Buffer, 'le', this['span']), b, offset);
-//   }
-// }
+  encode(src, b, offset) {
+    console.log('src ::: ', src);
+    return super.encode(src.toArrayLike(Buffer, 'le', this['span']), b, offset);
+  }
+}
 
-// export function U64F64(property = "") {
-//   return new U64F64Layout(property)
-// }
+export function U64F64(property = '') {
+  return new U64F64Layout(property);
+}
 
-// export function u64(property = "") {
-//   return new BNLayout(8, property);
-// }
+export function u64(property = '') {
+  return new BNLayout(8, property);
+}
 
-// export function u128(property = "") {
-//   return new BNLayout(16, property);
-// }
+export function u128(property = '') {
+  return new BNLayout(16, property);
+}
 
-// export const XENON_DATA = struct([
-//   u8('is_initialized'),
-//   u8('bump'),
-//   seq(u8(), 6, 'padding'),
+export const XENON_DATA = struct([
+  u8('is_initialized'),
+  u8('bump'),
+  seq(u8(), 6, 'padding'),
 
-//   publicKeyLayout('admin'),
-//   publicKeyLayout('vault'),
-//   publicKeyLayout('mint_key'),
+  publicKeyLayout('admin'),
+  publicKeyLayout('vault'),
+  publicKeyLayout('mint_key'),
 
-//   U64F64('total_deposits'),
-//   U64F64('total_borrows'),
+  U64F64('total_deposits'),
+  U64F64('total_borrows'),
 
-//   U64F64('maint_coll_ratio'),
-//   U64F64('init_coll_ratio'),
+  U64F64('maint_coll_ratio'),
+  U64F64('init_coll_ratio'),
 
-//   U64F64('deposit_index'),
-//   U64F64('borrow_index'),
+  U64F64('deposit_index'),
+  U64F64('borrow_index'),
 
-//   u64('last_updated'),
-//   seq(u64(), 64, 'xpadding')
-// ])
+  u64('last_updated'),
+  seq(u64(), 64, 'xpadding'),
+]);
 
-// export const MARGIN_DATA = struct([
-//   u8('is_initialized'),
-//   u8('bump'),
-//   u8('borrow_active'),
-//   seq(u8(), 5, 'padding'),
+export const MARGIN_DATA = struct([
+  u8('is_initialized'),
+  u8('bump'),
+  u8('borrow_active'),
+  seq(u8(), 5, 'padding'),
 
-//   publicKeyLayout('xenon_pda'),
-//   publicKeyLayout('owner'),
-//   publicKeyLayout('vault'),
+  publicKeyLayout('xenon_pda'),
+  publicKeyLayout('owner'),
+  publicKeyLayout('vault'),
 
-//   U64F64('assets'),
-//   U64F64('liabs')
-// ])
+  U64F64('assets'),
+  U64F64('liabs'),
+]);
