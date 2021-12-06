@@ -26,3 +26,10 @@ export const xenonMarkets = [
     baseLabel: 'SRM',
   },
 ];
+
+export const xenonTokens = {
+  USDC: '8FRFC6MoGGkMFQwngccyu69VnYbzykGeez7ignHVAFSN',
+  BTC: '3UNBZ6o52WTWwjac2kPUb4FyodhU1vFkRJheu1Sh2TvU',
+  ETH: 'Cu84KB3tDL6SbFgToHMLYVDJJXdJjenNzSKikeAvzmkA',
+  SRM: 'AvtB6w9xboLwA145E221vhof5TddhqsChYcx7Fy3xVMH',
+};
