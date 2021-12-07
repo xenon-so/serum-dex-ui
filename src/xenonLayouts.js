@@ -1,4 +1,4 @@
-import { Blob, seq, struct, u8 } from 'buffer-layout';
+import { Blob, seq, struct, u8, u32 } from 'buffer-layout';
 import { PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
 
@@ -100,3 +100,17 @@ export const MARGIN_DATA = struct([
   U64F64('assets'),
   U64F64('liabs'),
 ]);
+
+export const ACCOUNT_LAYOUT = struct([
+    publicKeyLayout('mint'),
+    publicKeyLayout('owner'),
+    u64('amount'),
+    u32('delegateOption'),
+    publicKeyLayout('delegate'),
+    u8('state'),
+    u32('isNativeOption'),
+    u64('isNative'),
+    u64('delegatedAmount'),
+    u32('closeAuthorityOption'),
+    publicKeyLayout('closeAuthority')
+  ]);

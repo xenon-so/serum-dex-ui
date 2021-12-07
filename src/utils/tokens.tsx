@@ -183,3 +183,38 @@ export function useMintInfos(): [
     { refreshInterval: _VERY_SLOW_REFRESH_INTERVAL },
   );
 }
+
+export const TOKENS = {
+  WSOL: {
+    symbol: 'WSOL',
+    name: 'Wrapped Solana',
+    mintAddress: 'So11111111111111111111111111111111111111112',
+    decimals: 9,
+    referrer: 'HTcarLHe7WRxBQCWvhVB8AP56pnEtJUV2jDGvcpY3xo5',
+    tags: ['raydium']
+  },
+  BTC: {
+    symbol: 'BTC',
+    name: 'Wrapped Bitcoin',
+    mintAddress: '3UNBZ6o52WTWwjac2kPUb4FyodhU1vFkRJheu1Sh2TvU',
+    decimals: 6,
+    referrer: 'GZpS8cY8Nt8HuqxzJh6PXTdSxc38vFUjBmi7eEUkkQtG',
+    tags: ['raydium']
+  },
+  ETH: {
+    symbol: 'ETH',
+    name: 'Wrapped Ethereum',
+    mintAddress: 'Cu84KB3tDL6SbFgToHMLYVDJJXdJjenNzSKikeAvzmkA',
+    decimals: 6,
+    referrer: 'CXPTcSxxh4AT38gtv3SPbLS7oZVgXzLbMb83o4ziXjjN',
+    tags: ['raydium']
+  },
+  USDC: {
+    symbol: 'USDC',
+    name: 'USD Coin',
+    mintAddress: '8FRFC6MoGGkMFQwngccyu69VnYbzykGeez7ignHVAFSN',
+    decimals: 6,
+    referrer: 'CXPTcSxxh4AT38gtv3SPbLS7oZVgXzLbMb83o4ziXjjN',
+    tags: ['raydium']
+  }
+}
