@@ -33,6 +33,7 @@ import { Buffer } from 'buffer';
 import assert from 'assert';
 import { struct } from 'superstruct';
 import { WalletAdapter } from '../wallet-adapters';
+import { TOKENS } from './tokens';
 
 
 export async function findProgramAddress(seeds, programId) {
@@ -168,6 +169,13 @@ export async function settleFunds({
     quoteCurrencyAccountPubkey,
     referrerQuoteWallet,
   );
+
+  if(
+    baseCurrencyAccountPubkey.toBase58() === TOKENS.WSOL.mintAddress || 
+    baseCurrencyAccountPubkey.toBase58() === '11111111111111111111111111111111') {
+    settleFundsTransaction.instructions.pop();
+  }
+
 
   let transaction = mergeTransactions([
     createAccountTransaction,

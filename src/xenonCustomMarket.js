@@ -25,6 +25,14 @@ export const xenonMarkets = [
     quoteLabel: 'USDC',
     baseLabel: 'SRM',
   },
+  {
+    address: new PublicKey('5xWpt56U1NCuHoAEtpLeUrQcxDkEpNfScjfLFaRzLPgR'),
+    deprecated: false,
+    name: 'WSOL/USDC',
+    programId: new PublicKey('DESVgJVGajEgKGXhb6XmqDHGz3VjdgP7rEVESBgxmroY'),
+    quoteLabel: 'USDC',
+    baseLabel: 'WSOL',
+  },
 ];
 
 export const xenonTokens = {
@@ -32,4 +40,5 @@ export const xenonTokens = {
   BTC: '3UNBZ6o52WTWwjac2kPUb4FyodhU1vFkRJheu1Sh2TvU',
   ETH: 'Cu84KB3tDL6SbFgToHMLYVDJJXdJjenNzSKikeAvzmkA',
   SRM: 'AvtB6w9xboLwA145E221vhof5TddhqsChYcx7Fy3xVMH',
+  WSOL: 'So11111111111111111111111111111111111111112',
 };
