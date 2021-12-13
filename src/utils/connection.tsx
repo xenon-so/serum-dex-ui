@@ -6,7 +6,7 @@ import tuple from 'immutable-tuple';
 import { ConnectionContextValues, EndpointInfo } from './types';
 
 export const ENDPOINTS: EndpointInfo[] = [
-  { name: 'devnet', endpoint: 'https://api.devnet.solana.com', custom: false },
+  { name: 'devnet', endpoint: 'https://psytrbhymqlkfrhudd.dev.genesysgo.net:8899/', custom: false },
 ];
 
 const accountListenerCount = new Map();

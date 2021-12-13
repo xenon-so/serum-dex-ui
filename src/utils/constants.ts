@@ -1,6 +1,6 @@
 import { Connection, PublicKey } from "@solana/web3.js";
 
-export const cluster = "https://api.devnet.solana.com";
+export const cluster = "https://ssc-dao.genesysgo.net/";
 export const connection = new Connection(cluster, "confirmed");
 
 export const programId = new PublicKey('CLbDtJTcL7NMtsujFRuHx5kLxjDgjmEuM2jZqswk7bbN');

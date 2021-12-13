@@ -184,6 +184,14 @@ export function useMintInfos(): [
   );
 }
 
+export const NATIVE_SOL = {
+  symbol: 'SOL',
+  name: 'Native Solana',
+  mintAddress: '11111111111111111111111111111111',
+  decimals: 9,
+  tags: ['raydium']
+}
+
 export const TOKENS = {
   WSOL: {
     symbol: 'WSOL',

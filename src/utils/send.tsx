@@ -33,7 +33,7 @@ import { Buffer } from 'buffer';
 import assert from 'assert';
 import { struct } from 'superstruct';
 import { WalletAdapter } from '../wallet-adapters';
-import { TOKENS } from './tokens';
+import { NATIVE_SOL, TOKENS } from './tokens';
 
 
 export async function findProgramAddress(seeds, programId) {
@@ -171,8 +171,9 @@ export async function settleFunds({
   );
 
   if(
-    baseCurrencyAccountPubkey.toBase58() === TOKENS.WSOL.mintAddress || 
-    baseCurrencyAccountPubkey.toBase58() === '11111111111111111111111111111111') {
+    baseCurrencyAccount.effectiveMint.toBase58() === TOKENS.WSOL.mintAddress || 
+    baseCurrencyAccount.effectiveMint.toBase58() === NATIVE_SOL.mintAddress) {
+    console.log("poppping:::")
     settleFundsTransaction.instructions.pop();
   }
 
