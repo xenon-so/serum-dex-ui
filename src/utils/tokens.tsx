@@ -101,6 +101,7 @@ export async function getTokenAccountInfo(
     getOwnedTokenAccounts(connection, ownerAddress),
     connection.getAccountInfo(ownerAddress),
   ]);
+
   const parsedSplAccounts: TokenAccount[] = splAccounts.map(
     ({ publicKey, accountInfo }) => {
       return {
@@ -110,11 +111,7 @@ export async function getTokenAccountInfo(
       };
     },
   );
-  return parsedSplAccounts.concat({
-    pubkey: ownerAddress,
-    account,
-    effectiveMint: WRAPPED_SOL_MINT,
-  });
+  return parsedSplAccounts 
 }
 
 // todo: use this to map custom mints to custom tickers. Add functionality once custom markets store mints
@@ -182,14 +179,6 @@ export function useMintInfos(): [
     ),
     { refreshInterval: _VERY_SLOW_REFRESH_INTERVAL },
   );
-}
-
-export const NATIVE_SOL = {
-  symbol: 'SOL',
-  name: 'Native Solana',
-  mintAddress: '11111111111111111111111111111111',
-  decimals: 9,
-  tags: ['raydium']
 }
 
 export const TOKENS = {

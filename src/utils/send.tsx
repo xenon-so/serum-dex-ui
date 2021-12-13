@@ -33,7 +33,8 @@ import { Buffer } from 'buffer';
 import assert from 'assert';
 import { struct } from 'superstruct';
 import { WalletAdapter } from '../wallet-adapters';
-import { NATIVE_SOL, TOKENS } from './tokens';
+import { TOKENS } from './tokens';
+import { WRAPPED_SOL_MINT } from '@project-serum/serum/lib/token-instructions';
 
 
 export async function findProgramAddress(seeds, programId) {
@@ -110,6 +111,7 @@ export async function settleFunds({
   usdcRef?: PublicKey;
   usdtRef?: PublicKey;
 }): Promise<string | undefined> {
+  console.log(">>>>>>>>>>>>")
   if (
     !market ||
     !wallet ||
@@ -126,6 +128,9 @@ export async function settleFunds({
   let createAccountTransaction: Transaction | undefined;
   let baseCurrencyAccountPubkey = baseCurrencyAccount?.pubkey;
   let quoteCurrencyAccountPubkey = quoteCurrencyAccount?.pubkey;
+
+  console.log('baseCurrencyAccountPubkey :>> ', baseCurrencyAccountPubkey);
+  console.log('quoteCurrencyAccountPubkey :>> ', quoteCurrencyAccountPubkey);
 
   if (!baseCurrencyAccountPubkey) {
     const result = await createTokenAccountTransaction({
@@ -170,11 +175,18 @@ export async function settleFunds({
     referrerQuoteWallet,
   );
 
+  console.log('baseCurrencyAccountPubkey :>> ', baseCurrencyAccountPubkey.toBase58());
+  console.log('quoteCurrencyAccountPubkey :>> ', quoteCurrencyAccountPubkey.toBase58());
+  console.log('openOrders.owner :>> ', openOrders.owner.toBase58());
+
+  console.log('settleFundsTransaction :>> ', settleFundsTransaction);
+
+  console.log('baseCurrencyAccount.effectiveMint.toBase58() :>> ', baseCurrencyAccount.effectiveMint.toBase58());
   if(
-    baseCurrencyAccount.effectiveMint.toBase58() === TOKENS.WSOL.mintAddress || 
-    baseCurrencyAccount.effectiveMint.toBase58() === NATIVE_SOL.mintAddress) {
+    baseCurrencyAccount.effectiveMint.toBase58() === TOKENS.WSOL.mintAddress ){
     console.log("poppping:::")
-    settleFundsTransaction.instructions.pop();
+    console.log('settleFundsTransaction :>> ', settleFundsTransaction);
+    // settleFundsTransaction.instructions.sh;
   }
 
 
@@ -378,6 +390,7 @@ export async function placeOrder({
   quoteCurrencyAccount: PublicKey | undefined;
   feeDiscountPubkey: PublicKey | undefined;
 }) {
+
   let formattedMinOrderSize =
     market?.minOrderSize?.toFixed(getDecimalCount(market.minOrderSize)) ||
     market?.minOrderSize;
@@ -428,8 +441,10 @@ export async function placeOrder({
   const owner = wallet.publicKey;
   const transaction = new Transaction();
   const signers: Account[] = [];
-
+  console.log('baseCurrencyAccount :>> ', baseCurrencyAccount);
+  console.log('quoteCurrencyAccount :>> ', quoteCurrencyAccount);
   if (!baseCurrencyAccount) {
+    console.log('here :>> 1');
     const {
       transaction: createAccountTransaction,
       newAccountPubkey,
@@ -442,6 +457,7 @@ export async function placeOrder({
     baseCurrencyAccount = newAccountPubkey;
   }
   if (!quoteCurrencyAccount) {
+    console.log('here :>> 2');
     const {
       transaction: createAccountTransaction,
       newAccountPubkey,
@@ -485,8 +501,18 @@ export async function placeOrder({
     120_000,
     120_000,
   );
+  // if associated token account already exists then remove top 3 placeOrderTx
   console.log("placeOrderSigners:: ", JSON.parse(JSON.stringify(transaction) ))
   console.log("transaction after placeorder::" , placeOrderTx)
+
+  console.log('market.baseMintAddress.toBase58() :>> ', market.baseMintAddress.toBase58());
+  console.log('market.quoteMintAddress.toBase58() :>> ', market.quoteMintAddress.toBase58());
+  console.log('placeOrderTx.instructions :>> ', placeOrderTx);
+  if(market.baseMintAddress.toBase58() === WRAPPED_SOL_MINT.toBase58() || market.quoteMintAddress.toBase58() === WRAPPED_SOL_MINT.toBase58()) {
+    // placeOrderTx.instructions.shift()
+    // placeOrderTx.instructions.shift()
+    // placeOrderTx.instructions.shift()
+  }
   const endTime = getUnixTs();
   console.log(`Creating order transaction took ${endTime - startTime}`);
   transaction.add(placeOrderTx);

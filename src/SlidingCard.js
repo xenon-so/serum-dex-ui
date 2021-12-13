@@ -476,7 +476,7 @@ const SlidingCard = () => {
                 <span>{wsolBalance}</span>
               </div>
             }
-            key="3"
+            key="4"
           >
             {/* <table className="sliding-card-table">
                             <tr>
