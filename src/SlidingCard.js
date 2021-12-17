@@ -28,6 +28,36 @@ export const roundDownTo4Decimals = (value) => {
   }
 };
 
+const getPricesFromCoingecko = async () => {
+  const res = await fetch(
+    'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin%2Csolana%2Cethereum%2Cserum&order=market_cap_desc&per_page=100&page=1&sparkline=false',
+  );
+  const data = await res.json();
+  console.log('data :>> ', data);
+  return data;
+};
+
+const getTotalAssets = async (
+  usdcBalance,
+  btcBalance,
+  ethBalance,
+  wsolBalance,
+) => {
+  const prices = await getPricesFromCoingecko();
+  const btcTotal =
+    btcBalance * prices.find((t) => t.id === 'bitcoin').current_price;
+  const ethTotal =
+    ethBalance * prices.find((t) => t.id === 'ethereum').current_price;
+  const solTotal =
+    wsolBalance * prices.find((t) => t.id === 'solana').current_price;
+  console.log('usdcBalance :>> ', usdcBalance);
+  console.log('btcBalance :>> ', btcBalance);
+  console.log('btcBalance :>> ', btcTotal);
+  console.log('ethBalance :>> ', ethTotal);
+  console.log('wsolBalance :>> ', solTotal);
+  return parseFloat(usdcBalance) + btcTotal + ethTotal + solTotal;
+};
+
 const getTokenData = (mintAddress, programAccounts, parsedProgramAccounts) => {
   // const associatedTokenAddress = programAccounts.find(t => t.pubkey.toBase58())
   // const
@@ -176,29 +206,47 @@ const SlidingCard = () => {
 
   useEffect(() => {
     if (accountMarginData && xenonProgramData && borrowRate) {
-      const assets = (accountMarginData.assets / 10 ** 6).toFixed(2);
-      const currentDate = Math.floor(Date.now() / 1000);
-      const lastUpdatedTime = xenonProgramData.last_updated.toNumber();
-      const borrowIndex =
-        xenonProgramData.borrow_index +
-        xenonProgramData.borrow_index *
-          borrowRate *
-          (currentDate - lastUpdatedTime);
-      const liabs = (accountMarginData.liabs / 10 ** 6) * borrowIndex;
-      setLiabilites(liabs);
-      setUsdcLeftToBorrow(assets - 2 * liabs < 0 ? 0 : assets - 2 * liabs);
-      const coll_ratio = accountMarginData.assets / 10 ** 6 / liabs;
-      setAccountLeverage((1 / (coll_ratio - 1) + 1).toFixed(2));
-      setBorrowAPR((borrowRate * 3.154e7 * 100).toFixed(2));
-      setAssetValue((accountMarginData.assets / 10 ** 6).toFixed(2));
-      setHealthPercentage(
-        (
-          (accountMarginData.assets / accountMarginData.liabs - 1.2) *
-          100
-        ).toFixed(0),
-      );
+      (async () => {
+        const assets = (accountMarginData.assets / 10 ** 6).toFixed(2);
+        const totalAssets = await getTotalAssets(
+          usdcBalance,
+          btcBalance,
+          ethBalance,
+          wsolBalance,
+        );
+        const currentDate = Math.floor(Date.now() / 1000);
+        const lastUpdatedTime = xenonProgramData.last_updated.toNumber();
+        const borrowIndex =
+          xenonProgramData.borrow_index +
+          xenonProgramData.borrow_index *
+            borrowRate *
+            (currentDate - lastUpdatedTime);
+        const liabs = (accountMarginData.liabs / 10 ** 6) * borrowIndex;
+        setLiabilites(liabs);
+        setUsdcLeftToBorrow(
+          totalAssets - 2 * liabs < 0 ? 0 : totalAssets - 2 * liabs,
+        );
+        const coll_ratio = totalAssets / liabs;
+        setAccountLeverage((1 / (coll_ratio - 1) + 1).toFixed(2));
+        setBorrowAPR((borrowRate * 3.154e7 * 100).toFixed(2));
+        setAssetValue(totalAssets.toFixed(2));
+        setHealthPercentage(
+          (
+            (totalAssets / (accountMarginData.liabs / 10 ** 6) - 1.2) *
+            100
+          ).toFixed(0),
+        );
+      })();
     }
-  }, [connected, accountMarginData, xenonProgramData, borrowRate]);
+  }, [
+    connected,
+    accountMarginData,
+    xenonProgramData,
+    borrowRate,
+    btcBalance,
+    wsolBalance,
+    ethBalance,
+  ]);
 
   useEffect(() => {
     console.log('xenonPDA >>>> 222 >>>>  :>> ', xenonPDA);
@@ -274,7 +322,7 @@ const SlidingCard = () => {
 
         try {
           const token = mappedTokens.find(
-            (t) => t.data.mint.toBase58() === TOKENS.WSOL.mintAddress,
+            (t) => t.data.mint.toBase58() === TOKENS.BTC.mintAddress,
           );
           const accounts = token.pubkey;
           const walletBalance = await connection.getTokenAccountBalance(
