@@ -33,7 +33,6 @@ const getPricesFromCoingecko = async () => {
     'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin%2Csolana%2Cethereum%2Cserum&order=market_cap_desc&per_page=100&page=1&sparkline=false',
   );
   const data = await res.json();
-  console.log('data :>> ', data);
   return data;
 };
 
@@ -50,11 +49,6 @@ const getTotalAssets = async (
     ethBalance * prices.find((t) => t.id === 'ethereum').current_price;
   const solTotal =
     wsolBalance * prices.find((t) => t.id === 'solana').current_price;
-  console.log('usdcBalance :>> ', usdcBalance);
-  console.log('btcBalance :>> ', btcBalance);
-  console.log('btcBalance :>> ', btcTotal);
-  console.log('ethBalance :>> ', ethTotal);
-  console.log('wsolBalance :>> ', solTotal);
   return parseFloat(usdcBalance) + btcTotal + ethTotal + solTotal;
 };
 
@@ -75,7 +69,7 @@ const mapTokens = (resps) => {
 };
 
 const SlidingCard = () => {
-  const [state, setState] = useState(false);
+  const [state, setState] = useState(true);
   const [xenonProgramData, setXenonProgramData] = useState(null);
   const [accountMarginData, setAccountMarginData] = useState(null);
   const [timer, setTimer] = useState(0);
@@ -97,10 +91,6 @@ const SlidingCard = () => {
   useEffect(() => {
     if (connected) {
       (async () => {
-        console.log(
-          'wallet.publicKey 111 :>> ',
-          wallet.walletPublicKey.toBase58(),
-        );
         const x = await PublicKey.findProgramAddress(
           [wallet.walletPublicKey.toBuffer()],
           programId,
@@ -118,24 +108,19 @@ const SlidingCard = () => {
   }, []);
 
   const subscribeXenonProgramDataSubscribe = async () => {
-    console.log('>>>>>>>>>>>>>>>> ');
     const xenonPDA = await PublicKey.findProgramAddress(
       [Buffer.from('xenon_v1')],
       programId,
     );
     let xenonInfo = await connection.getAccountInfo(xenonPDA[0]);
     if (xenonInfo) {
-      console.log('>>>>>>>>>>>>>>>> 2222');
       let xenonData = XENON_DATA.decode(xenonInfo.data);
-      console.log('xenonData:', xenonData);
       setXenonProgramData(xenonData);
 
       const xenonProgramDataSubscription = connection.onAccountChange(
         xenonPDA[0],
         (x, y) => {
           const data = XENON_DATA.decode(x.data);
-          console.log('in xenonData:', xenonData);
-
           setXenonProgramData(data);
         },
         'recent',
@@ -221,14 +206,20 @@ const SlidingCard = () => {
           xenonProgramData.borrow_index *
             borrowRate *
             (currentDate - lastUpdatedTime);
+
         const liabs = (accountMarginData.liabs / 10 ** 6) * borrowIndex;
+
         setLiabilites(liabs);
         setUsdcLeftToBorrow(
           totalAssets - 2 * liabs < 0 ? 0 : totalAssets - 2 * liabs,
         );
+
         const coll_ratio = totalAssets / liabs;
+
         setAccountLeverage((1 / (coll_ratio - 1) + 1).toFixed(2));
+
         setBorrowAPR((borrowRate * 3.154e7 * 100).toFixed(2));
+
         setAssetValue(totalAssets.toFixed(2));
         setHealthPercentage(
           (
@@ -243,137 +234,130 @@ const SlidingCard = () => {
     accountMarginData,
     xenonProgramData,
     borrowRate,
+    usdcBalance,
     btcBalance,
     wsolBalance,
     ethBalance,
   ]);
 
   useEffect(() => {
-    console.log('xenonPDA >>>> 222 >>>>  :>> ', xenonPDA);
-    if (connected && xenonPDA != null) {
-      (async () => {
-        let filters = getOwnedAccountsFilters(xenonPDA);
-        let resp = await connection.getProgramAccounts(TOKEN_PROGRAM_ID, {
-          filters,
-        });
-        console.log('resp :>> ', resp);
-        const tokenData = resp.map((t) =>
-          ACCOUNT_LAYOUT.decode(t.account.data),
-        );
-        // console.log('tokenData :>> ', tokenData);
-        const mappedTokens = mapTokens(resp);
-        // console.log('mapTokens :>> ',
-        // USDC account
-        try {
-          console.log('wallet.publicKey >>>> :>> ', xenonPDA.toBase58());
-          const token = mappedTokens.find(
-            (t) => t.data.mint.toBase58() === TOKENS.USDC.mintAddress,
+    setInterval(() => {
+      if (connected && xenonPDA != null) {
+        (async () => {
+          let filters = getOwnedAccountsFilters(xenonPDA);
+          let resp = await connection.getProgramAccounts(TOKEN_PROGRAM_ID, {
+            filters,
+          });
+          const tokenData = resp.map((t) =>
+            ACCOUNT_LAYOUT.decode(t.account.data),
           );
-          const accounts = token.pubkey;
-          console.log('accounts :>> ', accounts);
-          const walletBalance = await connection.getTokenAccountBalance(
-            accounts,
-            'max',
-          );
-          setUsdcBalance(walletBalance.value.uiAmountString);
+          const mappedTokens = mapTokens(resp);
+          // USDC account
+          try {
+            const token = mappedTokens.find(
+              (t) => t.data.mint.toBase58() === TOKENS.USDC.mintAddress,
+            );
+            const accounts = token.pubkey;
+            const walletBalance = await connection.getTokenAccountBalance(
+              accounts,
+              'processed',
+            );
+            setUsdcBalance(walletBalance.value.uiAmountString);
 
-          const USDCAccountSubscription = connection.onAccountChange(
-            accounts,
-            (x, y) => {
-              const USDCAccState = ACCOUNT_LAYOUT.decode(x.data);
-              const bal = roundDownTo4Decimals(
-                USDCAccState.amount.toNumber() / 10 ** TOKENS.USDC.decimals,
-              );
-              setUsdcBalance(bal);
-              // console.log("state changed ::", USDCAccState, bal)
-            },
-            'recent',
-          );
-        } catch (error) {
-          console.error('error reading usdc account :>> ', error);
-        }
+            const USDCAccountSubscription = connection.onAccountChange(
+              accounts,
+              (x, y) => {
+                const USDCAccState = ACCOUNT_LAYOUT.decode(x.data);
+                const bal = roundDownTo4Decimals(
+                  USDCAccState.amount.toNumber() / 10 ** TOKENS.USDC.decimals,
+                );
+                setUsdcBalance(bal);
+              },
+              'recent',
+            );
+          } catch (error) {
+            console.error('error reading usdc account :>> ', error);
+          }
 
-        try {
-          const token = mappedTokens.find(
-            (t) => t.data.mint.toBase58() === TOKENS.WSOL.mintAddress,
-          );
-          const accounts = token.pubkey;
-          const walletBalance = await connection.getTokenAccountBalance(
-            accounts,
-            'max',
-          );
-          setWsolBalance(walletBalance.value.uiAmountString);
+          try {
+            const token = mappedTokens.find(
+              (t) => t.data.mint.toBase58() === TOKENS.WSOL.mintAddress,
+            );
+            const accounts = token.pubkey;
+            const walletBalance = await connection.getTokenAccountBalance(
+              accounts,
+              'processed',
+            );
+            setWsolBalance(walletBalance.value.uiAmountString);
 
-          const USDCAccountSubscription = connection.onAccountChange(
-            accounts,
-            (x, y) => {
-              const USDCAccState = ACCOUNT_LAYOUT.decode(x.data);
-              const bal = roundDownTo4Decimals(
-                USDCAccState.amount.toNumber() / 10 ** TOKENS.WSOL.decimals,
-              );
-              setWsolBalance(bal);
-              // console.log("state changed ::", USDCAccState, bal)
-            },
-            'recent',
-          );
-        } catch (error) {
-          console.error('error reading WSOL account :>> ', error);
-        }
+            const USDCAccountSubscription = connection.onAccountChange(
+              accounts,
+              (x, y) => {
+                const USDCAccState = ACCOUNT_LAYOUT.decode(x.data);
+                const bal = roundDownTo4Decimals(
+                  USDCAccState.amount.toNumber() / 10 ** TOKENS.WSOL.decimals,
+                );
+                setWsolBalance(bal);
+              },
+              'recent',
+            );
+          } catch (error) {
+            console.error('error reading WSOL account :>> ', error);
+          }
 
-        try {
-          const token = mappedTokens.find(
-            (t) => t.data.mint.toBase58() === TOKENS.BTC.mintAddress,
-          );
-          const accounts = token.pubkey;
-          const walletBalance = await connection.getTokenAccountBalance(
-            accounts,
-            'max',
-          );
-          setBtcBalance(walletBalance.value.uiAmountString);
+          try {
+            const token = mappedTokens.find(
+              (t) => t.data.mint.toBase58() === TOKENS.BTC.mintAddress,
+            );
+            const accounts = token.pubkey;
+            const walletBalance = await connection.getTokenAccountBalance(
+              accounts,
+              'processed',
+            );
+            setBtcBalance(walletBalance.value.uiAmountString);
 
-          const USDCAccountSubscription = connection.onAccountChange(
-            accounts,
-            (x, y) => {
-              const USDCAccState = ACCOUNT_LAYOUT.decode(x.data);
-              const bal = roundDownTo4Decimals(
-                USDCAccState.amount.toNumber() / 10 ** TOKENS.BTC.decimals,
-              );
-              setBtcBalance(bal);
-              // console.log("state changed ::", USDCAccState, bal)
-            },
-            'recent',
-          );
-        } catch (error) {
-          console.error('error reading BTC account :>> ', error);
-        }
-        try {
-          const token = mappedTokens.find(
-            (t) => t.data.mint.toBase58() === TOKENS.ETH.mintAddress,
-          );
-          const accounts = token.pubkey;
-          const walletBalance = await connection.getTokenAccountBalance(
-            accounts,
-            'max',
-          );
-          setEthBalance(walletBalance.value.uiAmountString);
+            const USDCAccountSubscription = connection.onAccountChange(
+              accounts,
+              (x, y) => {
+                const USDCAccState = ACCOUNT_LAYOUT.decode(x.data);
+                const bal = roundDownTo4Decimals(
+                  USDCAccState.amount.toNumber() / 10 ** TOKENS.BTC.decimals,
+                );
+                setBtcBalance(bal);
+              },
+              'recent',
+            );
+          } catch (error) {
+            console.error('error reading BTC account :>> ', error);
+          }
+          try {
+            const token = mappedTokens.find(
+              (t) => t.data.mint.toBase58() === TOKENS.ETH.mintAddress,
+            );
+            const accounts = token.pubkey;
+            const walletBalance = await connection.getTokenAccountBalance(
+              accounts,
+              'processed',
+            );
+            setEthBalance(walletBalance.value.uiAmountString);
 
-          const USDCAccountSubscription = connection.onAccountChange(
-            accounts,
-            (x, y) => {
-              const USDCAccState = ACCOUNT_LAYOUT.decode(x.data);
-              const bal = roundDownTo4Decimals(
-                USDCAccState.amount.toNumber() / 10 ** TOKENS.ETH.decimals,
-              );
-              setEthBalance(bal);
-              // console.log("state changed ::", USDCAccState, bal)
-            },
-            'recent',
-          );
-        } catch (error) {
-          console.error('error reading ETH account :>> ', error);
-        }
-      })();
-    }
+            const USDCAccountSubscription = connection.onAccountChange(
+              accounts,
+              (x, y) => {
+                const USDCAccState = ACCOUNT_LAYOUT.decode(x.data);
+                const bal = roundDownTo4Decimals(
+                  USDCAccState.amount.toNumber() / 10 ** TOKENS.ETH.decimals,
+                );
+                setEthBalance(bal);
+              },
+              'recent',
+            );
+          } catch (error) {
+            console.error('error reading ETH account :>> ', error);
+          }
+        })();
+      }
+    }, 5000);
   }, [connected, xenonPDA]);
 
   return (

@@ -17,14 +17,14 @@ export const xenonMarkets = [
     quoteLabel: 'USDC',
     baseLabel: 'ETH',
   },
-  {
-    address: new PublicKey('249LDNPLLL29nRq8kjBTg9hKdXMcZf4vK2UvxszZYcuZ'),
-    deprecated: false,
-    name: 'SRM/USDC',
-    programId: new PublicKey('DESVgJVGajEgKGXhb6XmqDHGz3VjdgP7rEVESBgxmroY'),
-    quoteLabel: 'USDC',
-    baseLabel: 'SRM',
-  },
+  // {
+  //   address: new PublicKey('249LDNPLLL29nRq8kjBTg9hKdXMcZf4vK2UvxszZYcuZ'),
+  //   deprecated: false,
+  //   name: 'SRM/USDC',
+  //   programId: new PublicKey('DESVgJVGajEgKGXhb6XmqDHGz3VjdgP7rEVESBgxmroY'),
+  //   quoteLabel: 'USDC',
+  //   baseLabel: 'SRM',
+  // },
   {
     address: new PublicKey('5xWpt56U1NCuHoAEtpLeUrQcxDkEpNfScjfLFaRzLPgR'),
     deprecated: false,
