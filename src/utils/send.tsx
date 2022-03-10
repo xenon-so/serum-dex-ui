@@ -35,6 +35,7 @@ import { struct } from 'superstruct';
 import { WalletAdapter } from '../wallet-adapters';
 import { TOKENS } from './tokens';
 import { WRAPPED_SOL_MINT } from '@project-serum/serum/lib/token-instructions';
+import { adapterProgramId } from './constants';
 
 
 export async function findProgramAddress(seeds, programId) {
@@ -744,6 +745,8 @@ export async function signTransaction({
 
   console.log("transaction before  :: ", JSON.parse(JSON.stringify(transaction)) )
   console.log("signers:: ", signers)
+  const adapterPDA = await PublicKey.findProgramAddress([wallet.publicKey.toBuffer()], adapterProgramId);
+
 
   // transaction.setSigners(...signers.map((s) => s.publicKey));
   console.log("transaction after setSignbers :: ", JSON.parse(JSON.stringify(transaction)) )
@@ -758,8 +761,12 @@ export async function signTransaction({
     {
       const puppetProg = ix.programId
       ix.keys.unshift({pubkey: ix.programId, isSigner: false, isWritable: false})
+      ix.keys.unshift({pubkey: adapterPDA[0], isSigner: false, isWritable: true})
+      console.log("Adapter_pda:", adapterPDA)
+      ix.keys.unshift({pubkey: new PublicKey('8ZuvEP7LtkJ57BssnFfENr7zSEWYyhhmvbeWD4Ccg5A4'), isSigner: false, isWritable: false})
+      
       ix.keys.unshift({pubkey: signerKey!, isSigner: true, isWritable: true})
-      ix.programId = new PublicKey('CLbDtJTcL7NMtsujFRuHx5kLxjDgjmEuM2jZqswk7bbN')
+      ix.programId = new PublicKey('9RZ8Fgh2n5urcfkUw6jDHBn1DnrDaiitc9uuc8UevMeY')
       console.log("keys::", ix.keys)
       const signerIndex = ix.keys.findIndex((x => (x.pubkey.toBase58() === wallet.publicKey.toBase58())))
       console.log("signerIndex:: ", signerIndex)
@@ -768,10 +775,13 @@ export async function signTransaction({
         ix.keys[signerIndex].isWritable = true
       }
       // update instruction data, append 10 as opcode
-      let new_data = new Uint8Array(ix.data.length+1)
+      let new_data = new Uint8Array(ix.data.length+1+2+1)
       new_data[0] = 10 // ix opcode
+      new_data[1] = 0
+      new_data[2] = 0
+      new_data[3] = 1
       for (let i=0; i<ix.data.length; i++) {
-        new_data[i+1] = ix.data[i]
+        new_data[i+1+2+1] = ix.data[i]
       }
       ix.data = Buffer.from(new_data.buffer)
     }

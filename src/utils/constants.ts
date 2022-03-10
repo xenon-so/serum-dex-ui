@@ -3,7 +3,8 @@ import { Connection, PublicKey } from "@solana/web3.js";
 export const cluster = "https://ssc-dao.genesysgo.net/";
 export const connection = new Connection(cluster, "confirmed");
 
-export const programId = new PublicKey('CLbDtJTcL7NMtsujFRuHx5kLxjDgjmEuM2jZqswk7bbN');
+export const programId = new PublicKey('9RZ8Fgh2n5urcfkUw6jDHBn1DnrDaiitc9uuc8UevMeY');
+export const adapterProgramId = new PublicKey('8ZuvEP7LtkJ57BssnFfENr7zSEWYyhhmvbeWD4Ccg5A4');
 
 export const SYSTEM_PROGRAM_ID = new PublicKey('11111111111111111111111111111111')
 export const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA')

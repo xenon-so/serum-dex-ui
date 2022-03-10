@@ -101,11 +101,13 @@ const SlidingCard = () => {
           'wallet.publicKey 111 :>> ',
           wallet.walletPublicKey.toBase58(),
         );
-        const x = await PublicKey.findProgramAddress(
-          [wallet.walletPublicKey.toBuffer()],
-          programId,
-        );
-        setXenonPDA(x[0]);
+        const x = new PublicKey('78FDFHPP4PTzCaLfXUKt9vZcPELLvnnS3wnQeGNwRAsm');
+
+        // const x = await PublicKey.findProgramAddress(
+        //   [wallet.walletPublicKey.toBuffer()],
+        //   programId,
+        // );
+        setXenonPDA(x);
       })();
     }
   }, [connected]);
@@ -151,17 +153,20 @@ const SlidingCard = () => {
 
   const subscribeAccountMarginData = async () => {
     if (connected) {
-      const marginPDA = await PublicKey.findProgramAddress(
-        [wallet?.walletPublicKey.toBuffer()],
-        programId,
+      const marginPDA = new PublicKey(
+        '78FDFHPP4PTzCaLfXUKt9vZcPELLvnnS3wnQeGNwRAsm',
       );
-      let xenonInfo = await connection.getAccountInfo(marginPDA[0]);
+      // const marginPDA = await PublicKey.findProgramAddress(
+      //   [wallet?.walletPublicKey.toBuffer()],
+      //   programId,
+      // );
+      let xenonInfo = await connection.getAccountInfo(marginPDA);
       if (xenonInfo) {
         let xenonData = MARGIN_DATA.decode(xenonInfo.data);
         setAccountMarginData(xenonData);
 
         const solAccountSubscription = connection.onAccountChange(
-          marginPDA[0],
+          marginPDA,
           (x, y) => {
             const data = MARGIN_DATA.decode(x.data);
             setAccountMarginData(data);
